@@ -9,7 +9,7 @@ Mục tiêu của bài tập lớn nhằm minh họa và kiểm chứng sâu sá
 * **Thành viên 1:** (Cao Quang Hưng - 20234012) - *Tìm hiểu về định nghĩa, tính chất, ứng dụng thực tế của Hàm băm. Xác định Input - Output, vẽ sơ đồ khối tổng thể và mô tả luồng xử lý dữ liệu của thuật toán SHA - 512. Lập trình phần primitives & math và padding & parsing.*
 * **Thành viên 2:** (Kiều Việt Hoàng - 20236179) - *Mô tả chi tiết từng bước xử lý của thuật toán. Trình bày Input - Output của từng bước nhỏ và phân tích sự biến đổi dữ liệu sau từng bước. Lập trình phần padding & parsing.*
 * **Thành viên 3:** (Bùi Khắc Kiên - 20234016) - *Tổng hợp những nội dung đã tìm hiểu và nghiên cứu được về Hàm băm và đưa vào Powerpoint trình bày. Lập trình phần 80 rounds và bổ sung việc in ra các giá trị trung gian sau từng bước nhằm phục vụ cho Testing.*
-* **Thành viên 4:** (Nguyễn Quốc Huy - 20234013) - *Chạy mô phỏng với dữ liệu thật, thu thập Input - Output ở từng bước nhỏ. Lập trình phân main*
+* **Thành viên 4:** (Nguyễn Quốc Huy - 20234013) - *Chạy mô phỏng với dữ liệu thật, thu thập Input - Output ở từng bước nhỏ. Lập trình phân main.*
 * **Thành viên 5:** (Nguyễn Minh Hùng - 20234011) - *Chuẩn bị test vector chuẩn và đối chiếu chúng với các giá trị trung gian được thu thập. Lập trình phần main.*
 * **Thành viên 6:** (Mạc Quang Huy - 20213709) - *Quản lý tiến độ commit code của từng thành viên.*
 
