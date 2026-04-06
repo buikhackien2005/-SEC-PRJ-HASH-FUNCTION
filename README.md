@@ -34,18 +34,19 @@ cd your-repo-name
 
 **Bước 2: Biên dịch mã nguồn bằng g++**
 ```bash
-g++ -O2 main.cpp -o sha512_app
+g++ hash_main.cpp -o sha512.exe
 ```
 
 **Bước 3: Chạy chương trình**
 ```bash
-./sha512_app
+./sha512.exe
 ```
 
 ## 📝 Cấu trúc mã nguồn chính
-* `main.cpp`: Chứa hàm điều phối chính và menu giao diện Console.
-* `sha512_core.h / .cpp`: Chứa không gian toán học (Hằng số K, giá trị khởi tạo H) và lõi nhào nặn 80 vòng lặp.
-* `utils.h`: Chứa các hàm hỗ trợ như in Hex (`hex64`), xuất log ra file, và ép kiểu Endian.
+* `hash_primitives_math.cpp`: Chứa các hàm toán học được sử dụng và các giá trị H khởi tạo.
+* `hash_padding_parsing.cpp`: Chứa các phương thức tiền xử lý và ép kiểu hiển thị.
+* `hash_80_rounds.cpp`: Chứa các bước xử lý 1 khối Mi trong mỗi vòng lặp.
+* `hash_main.cpp`: Chứa hàm điều phối chính và menu giao diện Console.
 
 ---
 *Bài tập lớn thuộc học phần An toàn thông tin.*
