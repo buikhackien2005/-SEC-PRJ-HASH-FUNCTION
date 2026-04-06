@@ -2,6 +2,9 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#define u8 uint8_t
+#define u64 uint64_t
+
 // Hàm chính xử lý SHA-512 và ghi các giá trị trung gian ra file .txt
 string sha512_trace_to_file(const string& msg,
                             ostream& logFile,
@@ -10,7 +13,7 @@ string sha512_trace_to_file(const string& msg,
                             bool logRounds = true,
                             bool logHEachBlock = true) {
     // Tiền xử lý dữ liệu
-    vector<u8> data = PaddingParsing_SHA512(msg, logFile, logPadding);
+    vector<u8> data = preprocessSHA512(msg, logFile, logPadding);
 
     // Khởi tạo H bằng giá trị ban đầu H0
     array<u64, 8> H = H0;
