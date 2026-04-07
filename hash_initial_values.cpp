@@ -1,12 +1,8 @@
-#pragma once
-#include <bits/stdc++.h>
-using namespace std;
+#include "hash_initial_values.h"
 
-#define u8 uint8_t
-#define u64 uint64_t
-
+namespace sha512 {
 // defining 80 constant values of K
-static const array<u64, 80> K = {
+static const std::array<u64, 80> K = {
     0x428a2f98d728ae22ULL, 0x7137449123ef65cdULL,
     0xb5c0fbcfec4d3b2fULL, 0xe9b5dba58189dbbcULL,
     0x3956c25bf348b538ULL, 0x59f111f1b605d019ULL,
@@ -50,7 +46,7 @@ static const array<u64, 80> K = {
 };
 
 // defining 8 initial alues of H
-static const array<u64, 8> H0 = {
+static const std::array<u64, 8> H0 = {
     0x6a09e667f3bcc908ULL,
     0xbb67ae8584caa73bULL,
     0x3c6ef372fe94f82bULL,
@@ -61,42 +57,11 @@ static const array<u64, 8> H0 = {
     0x5be0cd19137e2179ULL
 };
 
-// right bit rotation function
-u64 rotr(u64 x, int n) {
-    return (x >> n) | (x << (64 - n));
+const std::array<u64, 80>& getK() {
+    return K;
 }
 
-// right shifting function
-u64 shr(u64 x, int n) {
-    return x >> n;
+const std::array<u64, 8>& getH0() {
+    return H0;
 }
-
-// Choose function
-u64 Ch(u64 x, u64 y, u64 z) {
-    return (x & y) ^ (~x & z);
-}
-
-// Majority function
-u64 Maj(u64 x, u64 y, u64 z) {
-    return (x & y) ^ (x & z) ^ (y & z);
-}
-
-// Big_Sigma_0 function used to rotate and mix bits
-u64 BSIG0(u64 x) {
-    return rotr(x, 28) ^ rotr(x, 34) ^ rotr(x, 39);
-}
-
-// Big_Sigma_1 function used to rotate and mix bits
-u64 BSIG1(u64 x) {
-    return rotr(x, 14) ^ rotr(x, 18) ^ rotr(x, 41);
-}
-
-// Small_Sigma_0 function used to duplicate W[i]
-u64 SSIG0(u64 x) {
-    return rotr(x, 1) ^ rotr(x, 8) ^ shr(x, 7);
-}
-
-// Small_Sigma_1 function used to duplicate W[i]
-u64 SSIG1(u64 x) {
-    return rotr(x, 19) ^ rotr(x, 61) ^ shr(x, 6);
 }

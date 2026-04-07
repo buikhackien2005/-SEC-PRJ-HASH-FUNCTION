@@ -1,37 +1,37 @@
-#pragma once
-#include <bits/stdc++.h>
-using namespace std;
+#include "hash_80_rounds.h"
+#include "hash_initial_values.h"
+#include "hash_math_functions.h"
+#include "hash_padding_parsing.h"
 
-#define u8 uint8_t
-#define u64 uint64_t
-
+namespace sha512 {
 // Hàm chính xử lý SHA-512 và ghi các giá trị trung gian ra file .txt
-string sha512_trace_to_file(const string& msg,
-                            ostream& logFile,
-                            bool logPadding = true,
-                            bool logSchedule = true,
-                            bool logRounds = true,
-                            bool logHEachBlock = true) {
+std::string sha512_trace_to_file(const std::string& msg,
+                            std::ostream& logFile,
+                            bool logPadding,
+                            bool logSchedule,
+                            bool logRounds,
+                            bool logHEachBlock) {
     // Tiền xử lý dữ liệu
-    vector<u8> data = preprocessSHA512(msg, logFile, logPadding);
+    std::vector<u8> data = preprocessSHA512(msg, logFile, logPadding);
 
     // Khởi tạo H bằng giá trị ban đầu H0
-    array<u64, 8> H = H0;
+    std::array<u64, 8> H = getH0();
+    const std::array<u64, 80>& K = getK();
 
     // Số block 1024-bit cần xử lý
-    size_t numBlocks = data.size() / 128;
+    std::size_t numBlocks = data.size() / 128;
 
     // Duyệt từng block
-    for (size_t blockIndex = 0; blockIndex < numBlocks; ++blockIndex) {
+    for (std::size_t blockIndex = 0; blockIndex < numBlocks; ++blockIndex) {
         logFile << "========================================\n";
         logFile << "BLOCK " << blockIndex << "\n";
         logFile << "========================================\n";
 
         // W là message schedule gồm 80 word 64-bit
-        array<u64, 80> W{};
+        std::array<u64, 80> W{};
 
         // offset = vị trí byte bắt đầu của block hiện tại trong mảng data
-        size_t offset = blockIndex * 128;
+        std::size_t offset = blockIndex * 128;
 
         // Đọc 16 word đầu tiên W[0..15] trực tiếp từ block
         // Mỗi word gồm 8 byte = 64 bit
@@ -46,7 +46,7 @@ string sha512_trace_to_file(const string& msg,
         // Ghi log 16 word đầu tiên
         logFile << "[3] 16 WORD DAU TU BLOCK:\n";
         for (int t = 0; t < 16; ++t) {
-            logFile << "W[" << setw(2) << setfill('0') << t << "] = 0x" << hex64(W[t]) << "\n";
+            logFile << "W[" << std::setw(2) << std::setfill('0') << t << "] = 0x" << hex64(W[t]) << "\n";
         }
         logFile << "\n";
 
@@ -59,7 +59,7 @@ string sha512_trace_to_file(const string& msg,
         if (logSchedule) {
             logFile << "[4] MESSAGE SCHEDULE W[16..79]:\n";
             for (int t = 16; t < 80; ++t) {
-                logFile << "W[" << setw(2) << setfill('0') << t << "] = 0x" << hex64(W[t]) << "\n";
+                logFile << "W[" << std::setw(2) << std::setfill('0') << t << "] = 0x" << hex64(W[t]) << "\n";
             }
             logFile << "\n";
         }
@@ -90,7 +90,7 @@ string sha512_trace_to_file(const string& msg,
 
             // Ghi log trước khi cập nhật a..h
             if (logRounds) {
-                logFile << "----- ROUND " << setw(2) << setfill('0') << t << " -----\n";
+                logFile << "----- ROUND " << std::setw(2) << std::setfill('0') << t << " -----\n";
                 logFile << "W[" << t << "] = " << hex64(W[t]) << "\n";
                 logFile << "K[" << t << "] = " << hex64(K[t]) << "\n";
                 logFile << "T1 = " << hex64(T1) << "\n";
@@ -143,10 +143,11 @@ string sha512_trace_to_file(const string& msg,
     }
 
     // Ghép 8 word H[0..7] thành chuỗi hash cuối cùng
-    stringstream digest;
+    std::stringstream digest;
     for (u64 x : H) {
         digest << hex64(x);
     }
 
     return digest.str();
+}
 }

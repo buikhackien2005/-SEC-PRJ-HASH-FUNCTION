@@ -1,21 +1,31 @@
-#include "hash_primitives_math.cpp"
-#include "hash_padding_parsing.cpp"
-#include "hash_80_rounds.cpp"
+#include "hash_80_rounds.h"
+#include "hash_common.h"
 
-#define u8 uint8_t
-#define u64 uint64_t
+#ifndef SHA512_SEPARATE_BUILD
+#include "hash_80_rounds.cpp"
+#include "hash_padding_parsing.cpp"
+#include "hash_initial_values.cpp"
+#include "hash_rotr.cpp"
+#include "hash_shift_right.cpp"
+#include "hash_choose.cpp"
+#include "hash_majority.cpp"
+#include "hash_big_sigma0.cpp"
+#include "hash_big_sigma1.cpp"
+#include "hash_small_sigma0.cpp"
+#include "hash_small_sigma1.cpp"
+#endif
 
 int main() {
-    string msg;
+    std::string msg;
 
     // Nhập chuỗi cần băm từ bàn phím
-    cout << "Nhap chuoi can bam: ";
-    getline(cin, msg);
+    std::cout << "Nhap chuoi can bam: ";
+    std::getline(std::cin, msg);
 
     // Mở file output.txt để ghi toàn bộ log trung gian
-    ofstream fout("output.txt");
+    std::ofstream fout("output.txt");
     if (!fout.is_open()) {
-        cerr << "Khong mo duoc file output.txt\n";
+        std::cerr << "Khong mo duoc file output.txt\n";
         return 1;
     }
 
@@ -24,7 +34,7 @@ int main() {
     // - log message schedule
     // - log từng round
     // - log H sau mỗi block
-    string hash = sha512_trace_to_file(
+    std::string hash = sha512::sha512_trace_to_file(
         msg,
         fout,
         true,   // ghi padding vao file
@@ -39,8 +49,8 @@ int main() {
     fout.close();
 
     // In kết quả ra màn hình
-    cout << "\nSHA-512 = " << hash << "\n";
-    cout << "Da ghi cac buoc trung gian vao file output.txt\n";
+    std::cout << "\nSHA-512 = " << hash << "\n";
+    std::cout << "Da ghi cac buoc trung gian vao file output.txt\n";
 
     return 0;
 }

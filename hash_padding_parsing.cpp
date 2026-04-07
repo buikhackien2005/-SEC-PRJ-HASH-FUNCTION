@@ -1,30 +1,26 @@
-#pragma once
-#include <bits/stdc++.h>
-using namespace std;
+#include "hash_padding_parsing.h"
 
-#define u8 uint8_t
-#define u64 uint64_t
-
-string hex64(u64 x) {
-    stringstream ss;
-    ss << hex << nouppercase << setfill('0') << setw(16) << x;
+namespace sha512 {
+std::string hex64(u64 x) {
+    std::stringstream ss;
+    ss << std::hex << std::nouppercase << std::setfill('0') << std::setw(16) << x;
     return ss.str();
 }
 
-void print_bytes_hex(const vector<u8>& data, ostream& out, size_t perLine = 16) {
+void print_bytes_hex(const std::vector<u8>& data, std::ostream& out, std::size_t perLine) {
     for (size_t i = 0; i < data.size(); ++i) {
-        out << hex << nouppercase << setfill('0') << setw(2)
+        out << std::hex << std::nouppercase << std::setfill('0') << std::setw(2)
             << static_cast<unsigned>(data[i]) << " ";
         if ((i + 1) % perLine == 0) out << "\n";
     }
     if (data.size() % perLine != 0) out << "\n";
-    out << dec;
+    out << std::dec;
 }
 
 // I, Padding & Parsing function (Core Padding)
-vector<u8> preprocessSHA512(const string& msg, ostream& logFile, bool logPadding) {
+std::vector<u8> preprocessSHA512(const std::string& msg, std::ostream& logFile, bool logPadding) {
     // Sao chép nội dung chuỗi vào vector byte
-    vector<u8> data(msg.begin(), msg.end());
+    std::vector<u8> data(msg.begin(), msg.end());
 
     // SHA-512 biểu diễn độ dài thông điệp bằng 128 bit, do ko có số nguyên 128 bit nên chia thành high 64 bit và low 64 bit.
     // Trong code này, thông điệp nhỏ nên phần high = 0.
@@ -70,4 +66,5 @@ vector<u8> preprocessSHA512(const string& msg, ostream& logFile, bool logPadding
     }
 
     return data;
+}
 }
