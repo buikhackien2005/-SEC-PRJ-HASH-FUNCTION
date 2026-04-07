@@ -15,12 +15,11 @@ Mục tiêu của bài tập lớn nhằm minh họa và kiểm chứng sâu sá
 
 ## ✨ Tính năng nổi bật
 * **Padding & Parsing:** Tự động chèn bit đệm và cắt khối dữ liệu chuẩn xác 1024-bit.
-* **Toán học số lớn:** Xử lý triệt để bài toán Endianness (Big-Endian vs Little-Endian) và an toàn bộ nhớ với các kiểu dữ liệu `uint64_t`.
 * **Hệ thống Logging chi tiết:** Hỗ trợ xuất luồng dữ liệu trung gian (Message Schedule, 80 Rounds, thanh ghi a-h) ra file `.txt` để phục vụ Debug và chứng minh tính đúng đắn của thuật toán.
 * **Test Cases chuẩn NIST:** Đã vượt qua các kịch bản kiểm thử kinh điển (Chuỗi rỗng, Hiệu ứng thác đổ, Văn bản cực dài).
 
 ## 🛠 Yêu cầu hệ thống
-* Hệ điều hành: Linux/Ubuntu (khuyến nghị) hoặc Windows.
+* Hệ điều hành: Linux/Ubuntu hoặc Windows.
 * Trình biên dịch: `g++` (hỗ trợ chuẩn C++11 trở lên).
 * Công cụ quản lý phiên bản: Git.
 
