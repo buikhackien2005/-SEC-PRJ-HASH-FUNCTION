@@ -1,7 +1,10 @@
 #ifndef UTILS_BIT_OPERATIONS_H
 #define UTILS_BIT_OPERATIONS_H
 
+#include "common.h"
 #include <stdint.h>
+
+std::vector<uint8_t> pad_and_parse(const std::string& message);
 
 // Hàm Rotate Right (Dịch xoay phải) cho 64-bit
 inline uint64_t rotr(uint64_t x, uint32_t n) {

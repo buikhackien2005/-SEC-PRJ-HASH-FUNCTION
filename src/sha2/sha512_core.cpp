@@ -1,5 +1,5 @@
 #include "sha512_core.h"
-#include "sha512_init.h"
+#include "sha_init.h"
 #include "../utils/bit_operations.h"
 
 namespace sha512 {

@@ -1,4 +1,4 @@
-#include "sha512_init.h"
+#include "sha_init.h"
 
 namespace sha512 {
 
