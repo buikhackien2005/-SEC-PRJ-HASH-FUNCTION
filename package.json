@@ -1,0 +1,20 @@
+{
+  "name": "sha-gui-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ui/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "node-gyp rebuild"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "gypfile": true,
+  "devDependencies": {
+    "electron": "^42.0.1"
+  },
+  "dependencies": {
+    "node-addon-api": "^8.7.0"
+  }
+}
