@@ -6,8 +6,7 @@
       "cflags_cc!": [ "-fno-exceptions" ],
       "sources": [
         "src/addon.cpp",
-        "src/utils/padding_parsing.cpp",
-        "src/sha2/sha_init.cpp",
+        "src/sha2/sha512_init.cpp",
         "src/sha2/sha512_core.cpp"
       ],
       "include_dirs": [

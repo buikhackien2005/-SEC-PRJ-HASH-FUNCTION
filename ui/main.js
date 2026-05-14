@@ -20,20 +20,19 @@ function createWindow() {
 
 app.whenReady().then(createWindow);
 
-// Lắng nghe yêu cầu băm từ giao diện
-ipcMain.handle('hash-data', async (event, inputText, outputEncoding) => {
+// Thêm tham số isFile vào hàm lắng nghe
+ipcMain.handle('hash-data', async (event, inputData, outputEncoding, isFile) => {
     try {
-        // Gọi hàm C++ (Kết quả mặc định là chuỗi Hex chữ thường)
-        const hexResult = await addon.hash(inputText);
+        // Truyền thêm isFile xuống C++
+        const hexResult = await addon.hash(inputData, isFile);
 
-        // Xử lý các định dạng Output theo yêu cầu của bạn
         if (outputEncoding === 'hex_upper') {
             return hexResult.toUpperCase();
         } else if (outputEncoding === 'base64') {
             return Buffer.from(hexResult, 'hex').toString('base64');
         }
         
-        return hexResult; // Mặc định là hex_lower
+        return hexResult; 
     } catch (err) {
         return "Lỗi nội bộ: " + err.message;
     }

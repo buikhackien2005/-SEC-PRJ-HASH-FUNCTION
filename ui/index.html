@@ -23,8 +23,9 @@
             
             <div class="setting-group">
                 <label>Input Mode</label>
-                <select disabled>
-                    <option>Text (UTF-8)</option>
+                <select id="input-mode">
+                    <option value="text">Text (UTF-8)</option>
+                    <option value="file">File (Local Disk)</option>
                 </select>
             </div>
 
@@ -41,7 +42,14 @@
         <div class="main-content">
             <div class="box">
                 <div class="box-header">Input</div>
+                
                 <textarea id="input-text" placeholder="Enter your text here..."></textarea>
+                
+                <div id="input-file-container" style="display: none; padding: 20px; flex: 1; flex-direction: column; justify-content: center; align-items: center; background: #fcfcfc;">
+                    <input type="file" id="file-selector" style="margin-bottom: 15px;">
+                    <p id="file-path-display" style="font-size: 13px; color: #666; word-break: break-all; text-align: center;"></p>
+                </div>
+
             </div>
             <div class="box">
                 <div class="box-header">Output (SHA-512)</div>

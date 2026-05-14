@@ -1,68 +1,76 @@
 #include <napi.h>
-#include "utils/padding_parsing.h"
+#include <fstream>
 #include "sha2/sha512_core.h"
 
-// Tạo một lớp kế thừa từ AsyncWorker
 class HashWorker : public Napi::AsyncWorker {
 public:
-    // Constructor: Nhận dữ liệu đầu vào và tạo một đối tượng Promise
-    HashWorker(Napi::Env& env, std::string input_text)
-        : Napi::AsyncWorker(env), input_text(input_text), deferred(Napi::Promise::Deferred::New(env)) {}
+    HashWorker(Napi::Env& env, std::string input, bool is_file)
+        : Napi::AsyncWorker(env), input(input), is_file(is_file), deferred(Napi::Promise::Deferred::New(env)) {}
 
-    ~HashWorker() {}
-
-    // Lấy đối tượng Promise để trả về cho Javascript
     Napi::Promise GetPromise() { return deferred.Promise(); }
 
 protected:
-    // ---------------------------------------------------------
-    // LUỒNG NỀN (BACKGROUND THREAD) - CẤM GỌI NAPI Ở ĐÂY
-    // ---------------------------------------------------------
     void Execute() override {
+        sha512::SHA512 hasher;
+
         try {
-            std::vector<uint8_t> padded_data = pad_and_parse(input_text);
-            hash_result = sha512::hash_padded_data(padded_data);
+            if (is_file) {
+                // Chế độ băm File cuốn chiếu (Streaming)
+                std::ifstream file(input, std::ios::binary);
+                if (!file.is_open()) {
+                    throw std::runtime_error("Lỗi: Không thể mở file. Hãy kiểm tra đường dẫn.");
+                }
+
+                uint8_t file_buffer[8192]; // Đọc từng cục 8KB
+                while (file.read(reinterpret_cast<char*>(file_buffer), sizeof(file_buffer))) {
+                    hasher.update(file_buffer, file.gcount());
+                }
+                // Xử lý nốt phần còn sót lại (nếu có)
+                if (file.gcount() > 0) {
+                    hasher.update(file_buffer, file.gcount());
+                }
+            } else {
+                // Chế độ băm chuỗi văn bản
+                hasher.update(reinterpret_cast<const uint8_t*>(input.data()), input.length());
+            }
+
+            hash_result = hasher.finalize();
+
         } catch (const std::exception& e) {
-            SetError(e.what()); // Bắt lỗi để truyền sang OnError
+            SetError(e.what());
         }
     }
 
-    // ---------------------------------------------------------
-    // LUỒNG CHÍNH (MAIN THREAD) - GIAO TIẾP VỚI JAVASCRIPT
-    // ---------------------------------------------------------
     void OnOK() override {
         Napi::Env env = Env();
-        // C++ tính toán xong, Resolve Promise trả về chuỗi Hex
         deferred.Resolve(Napi::String::New(env, hash_result));
     }
 
     void OnError(const Napi::Error& e) override {
-        // Nếu Execute() có lỗi, Reject Promise
         deferred.Reject(e.Value());
     }
 
 private:
-    std::string input_text;
+    std::string input;
+    bool is_file;
     std::string hash_result;
     Napi::Promise::Deferred deferred;
 };
 
-// Hàm Wrapper bộc lộ ra ngoài
+// Hàm Wrapper bộc lộ ra ngoài nhận 2 tham số: (input_string, is_file_boolean)
 Napi::Value HashSHA512Async(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 
-    if (info.Length() < 1 || !info[0].IsString()) {
-        Napi::TypeError::New(env, "Expected a string").ThrowAsJavaScriptException();
+    if (info.Length() < 2 || !info[0].IsString() || !info[1].IsBoolean()) {
+        Napi::TypeError::New(env, "Tham số không hợp lệ. Cần truyền (String input, Boolean is_file)").ThrowAsJavaScriptException();
         return env.Null();
     }
 
-    std::string input_text = info[0].As<Napi::String>().Utf8Value();
+    std::string input = info[0].As<Napi::String>().Utf8Value();
+    bool is_file = info[1].As<Napi::Boolean>().Value();
     
-    // Khởi tạo Worker và ném nó vào hàng đợi (Thread Pool)
-    HashWorker* worker = new HashWorker(env, input_text);
+    HashWorker* worker = new HashWorker(env, input, is_file);
     worker->Queue(); 
-    
-    // Trả về một lời hứa (Promise) ngay lập tức, không chặn giao diện
     return worker->GetPromise();
 }
 
