@@ -1,5 +1,6 @@
 #include <napi.h>
 #include <fstream>
+#include "sha2/sha256_core.h"
 #include "sha2/sha512_core.h"
 // Tương lai bạn include thêm ở đây: #include "sha2/sha256_core.h"
 
@@ -33,6 +34,7 @@ protected:
 
                 // Khởi tạo các cỗ máy trạng thái
                 sha512::SHA512 hasher512;
+                sha256::SHA256 hasher256;
                 // TODO: Tạo instance cho sha256 ở đây nếu algo == "sha256"
 
                 while (file.read(reinterpret_cast<char*>(buffer), sizeof(buffer))) {
@@ -40,7 +42,7 @@ protected:
                     
                     // Routing thuật toán
                     if (algo == "sha512") hasher512.update(buffer, bytes);
-                    // else if (algo == "sha256") hasher256.update(buffer, bytes);
+                    else if (algo == "sha256") hasher256.update(buffer, bytes);
                     
                     bytes_read_total += bytes;
                     
@@ -58,18 +60,24 @@ protected:
                 // Xử lý nốt chunk cuối cùng
                 if (file.gcount() > 0) {
                     if (algo == "sha512") hasher512.update(buffer, file.gcount());
+                    else if (algo == "sha256") hasher256.update(buffer, file.gcount());
                 }
                 
                 // Chốt sổ
                 if (algo == "sha512") hash_result = hasher512.finalize();
+                else if (algo == "sha256") hash_result = hasher256.finalize();
                 else hash_result = "Thuật toán " + algo + " chưa được cài đặt trong C++!";
 
             } else {
                 // Băm Text siêu nhanh, bắn thẳng 100%
                 sha512::SHA512 hasher512;
+                sha256::SHA256 hasher256;
                 if (algo == "sha512") {
                     hasher512.update(reinterpret_cast<const uint8_t*>(input.data()), input.length());
                     hash_result = hasher512.finalize();
+                } else if (algo == "sha256") {
+                    hasher256.update(reinterpret_cast<const uint8_t*>(input.data()), input.length());
+                    hash_result = hasher256.finalize();
                 } else {
                     hash_result = "Thuật toán " + algo + " chưa được cài đặt!";
                 }

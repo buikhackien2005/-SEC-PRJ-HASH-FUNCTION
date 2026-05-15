@@ -6,6 +6,8 @@
       "cflags_cc!": [ "-fno-exceptions" ],
       "sources": [
         "src/addon.cpp",
+        "src/sha2/sha256_init.cpp",
+        "src/sha2/sha256_core.cpp",
         "src/sha2/sha512_init.cpp",
         "src/sha2/sha512_core.cpp"
       ],
