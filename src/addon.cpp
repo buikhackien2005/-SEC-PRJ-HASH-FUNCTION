@@ -1,6 +1,6 @@
 #include <napi.h>
 #include <fstream>
-#include <atomic> // Bắt buộc thêm thư viện này
+#include <atomic> // Bắt buộc cho cờ Cancel
 
 #include "sha256/sha256_core.h"
 #include "sha512/sha512_core.h"
@@ -14,7 +14,6 @@ struct ProgressData {
 };
 
 class HashWorker : public Napi::AsyncProgressQueueWorker<ProgressData> {
-// ... Giữ nguyên phần khai báo Constructor ...
 public:
     HashWorker(Napi::Function& callback, std::string input, bool is_file, std::string algo, Napi::Promise::Deferred deferred)
         : Napi::AsyncProgressQueueWorker<ProgressData>(callback), input(input), is_file(is_file), algo(algo), deferred(deferred) {}
@@ -40,7 +39,7 @@ protected:
                 md5::MD5 hasherMD5;
 
                 while (file.read(reinterpret_cast<char*>(buffer), sizeof(buffer))) {
-                    // PHANH KHẨN CẤP: Kiểm tra cờ mỗi vòng lặp
+                    // PHANH KHẨN CẤP
                     if (global_cancel_flag.load()) {
                         throw std::runtime_error("PROCESS_CANCELLED");
                     }
@@ -63,7 +62,6 @@ protected:
                     }
                 }
                 
-                // Kiểm tra cờ một lần cuối trước khi chốt sổ
                 if (global_cancel_flag.load()) throw std::runtime_error("PROCESS_CANCELLED");
 
                 if (file.gcount() > 0) {
@@ -78,32 +76,84 @@ protected:
                 else hash_result = "Thuật toán " + algo + " chưa được cài đặt!";
 
             } else {
-                // ... (Phần băm Text giữ nguyên, vì nó chạy quá nhanh không cần cancel) ...
+                sha512::SHA512 hasher512;
+                sha256::SHA256 hasher256;
+                md5::MD5 hasherMD5;
+                if (algo == "sha512") {
+                    hasher512.update(reinterpret_cast<const uint8_t*>(input.data()), input.length());
+                    hash_result = hasher512.finalize();
+                } else if (algo == "sha256") {
+                    hasher256.update(reinterpret_cast<const uint8_t*>(input.data()), input.length());
+                    hash_result = hasher256.finalize();
+                } else if (algo == "md5") {
+                    hasherMD5.update(reinterpret_cast<const uint8_t*>(input.data()), input.length());
+                    hash_result = hasherMD5.finalize();
+                } else {
+                    hash_result = "Thuật toán " + algo + " chưa được cài đặt!";
+                }
+                ProgressData pd = { 100.0 };
+                progress.Send(&pd, 1);
             }
         } catch (const std::exception& e) {
-            SetError(e.what()); // Bắn lỗi sang OnError
+            SetError(e.what());
         }
     }
 
-// ... Giữ nguyên OnProgress, OnOK, OnError ...
+    void OnProgress(const ProgressData* data, size_t count) override {
+        Napi::Env env = Env();
+        if (count > 0) {
+            Callback().Call({Napi::Number::New(env, data[0].percentage)});
+        }
+    }
+
+    void OnOK() override {
+        Napi::Env env = Env();
+        deferred.Resolve(Napi::String::New(env, hash_result));
+    }
+
+    void OnError(const Napi::Error& e) override {
+        deferred.Reject(e.Value());
+    }
+
+// LỖI CỦA BẠN NẰM Ở VIỆC XÓA MẤT KHỐI PRIVATE NÀY
+private:
+    std::string input;
+    bool is_file;
+    std::string algo;
+    std::string hash_result;
+    Napi::Promise::Deferred deferred;
 };
 
-// Hàm mới để gạt cờ Hủy từ Javascript
+// Hàm Cancel bộc lộ cho Javascript
 Napi::Value CancelHash(const Napi::CallbackInfo& info) {
     global_cancel_flag.store(true);
     return info.Env().Null();
 }
 
+// Hàm Wrapper tạo luồng
 Napi::Value HashAsync(const Napi::CallbackInfo& info) {
-    // RESET cờ trước khi bắt đầu luồng mới
     global_cancel_flag.store(false); 
     
-    // ... (Phần khai báo biến info giữ nguyên) ...
+    Napi::Env env = info.Env();
+
+    if (info.Length() < 4 || !info[3].IsFunction()) {
+        Napi::TypeError::New(env, "Tham số sai: (String, Boolean, String, Function)").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    std::string input = info[0].As<Napi::String>().Utf8Value();
+    bool is_file = info[1].As<Napi::Boolean>().Value();
+    std::string algo = info[2].As<Napi::String>().Utf8Value();
+    Napi::Function progress_callback = info[3].As<Napi::Function>();
+    
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+    HashWorker* worker = new HashWorker(progress_callback, input, is_file, algo, deferred);
+    worker->Queue(); 
+    return deferred.Promise();
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
     exports.Set(Napi::String::New(env, "hash"), Napi::Function::New(env, HashAsync));
-    // Xuất hàm Cancel ra ngoài
     exports.Set(Napi::String::New(env, "cancel"), Napi::Function::New(env, CancelHash));
     return exports;
 }
