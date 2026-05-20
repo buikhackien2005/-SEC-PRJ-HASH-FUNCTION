@@ -6,6 +6,7 @@
 #include "sha512/sha512_core.h"
 #include "md5/md5_core.h"
 #include "sha1/sha1_core.h"
+#include "keccak/keccak_core.h"
 
 // Biến cờ toàn cục, luồng an toàn (Thread-safe)
 std::atomic<bool> global_cancel_flag{false};
@@ -39,7 +40,7 @@ protected:
                 sha256::SHA256 hasher256;
                 md5::MD5 hasherMD5;
                 sha1::SHA1 hasherSHA1;
-
+                keccak::Keccak hasherKeccak;
                 while (file.read(reinterpret_cast<char*>(buffer), sizeof(buffer))) {
                     // PHANH KHẨN CẤP
                     if (global_cancel_flag.load()) {
@@ -52,6 +53,7 @@ protected:
                     else if (algo == "sha256") hasher256.update(buffer, bytes);
                     else if (algo == "md5") hasherMD5.update(buffer, bytes);
                     else if (algo == "sha1") hasherSHA1.update(buffer, bytes);
+                    else if (algo == "keccak") hasherKeccak.update(buffer, bytes);
                     bytes_read_total += bytes;
                     
                     if (total_size > 0) {
@@ -71,12 +73,14 @@ protected:
                     else if (algo == "sha256") hasher256.update(buffer, file.gcount());
                     else if (algo == "md5") hasherMD5.update(buffer, file.gcount());
                     else if (algo == "sha1") hasherSHA1.update(buffer, file.gcount());
+                    else if (algo == "keccak") hasherKeccak.update(buffer, file.gcount());
                 }
                 
                 if (algo == "sha512") hash_result = hasher512.finalize();
                 else if (algo == "sha256") hash_result = hasher256.finalize();
                 else if (algo == "md5") hash_result = hasherMD5.finalize();
                 else if (algo == "sha1") hash_result = hasherSHA1.finalize();
+                else if (algo == "keccak") hash_result = hasherKeccak.finalize();
                 else hash_result = "Thuật toán " + algo + " chưa được cài đặt!";
 
             } else {
@@ -84,6 +88,7 @@ protected:
                 sha256::SHA256 hasher256;
                 md5::MD5 hasherMD5;
                 sha1::SHA1 hasherSHA1;
+                keccak::Keccak hasherKeccak;
                 if (algo == "sha512") {
                     hasher512.update(reinterpret_cast<const uint8_t*>(input.data()), input.length());
                     hash_result = hasher512.finalize();
@@ -96,6 +101,9 @@ protected:
                 } else if (algo == "sha1") {
                     hasherSHA1.update(reinterpret_cast<const uint8_t*>(input.data()), input.length());
                     hash_result = hasherSHA1.finalize();
+                } else if (algo == "keccak") {
+                    hasherKeccak.update(reinterpret_cast<const uint8_t*>(input.data()), input.length());
+                    hash_result = hasherKeccak.finalize();
                 } else {
                     hash_result = "Thuật toán " + algo + " chưa được cài đặt!";
                 }

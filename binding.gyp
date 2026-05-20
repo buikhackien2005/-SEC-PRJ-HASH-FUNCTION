@@ -11,7 +11,8 @@
         "src/sha256/sha256_init.cpp",
         "src/sha256/sha256_core.cpp",
         "src/md5/md5_core.cpp",
-        "src/sha1/sha1_core.cpp"
+        "src/sha1/sha1_core.cpp",
+        "src/keccak/keccak_core.cpp"
       ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")"
