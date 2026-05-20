@@ -13,13 +13,17 @@
                 <li data-algo="md5">MD5</li>
                 <li class="disabled" data-algo="sha1">SHA-1</li>
                 <li data-algo="sha256">SHA-256</li>
-                <li data-algo="sha512">SHA-512</li>
+                <li class="active" data-algo="sha512">SHA-512</li>
                 <li class="disabled" data-algo="keccak">Keccak</li>
             </ul>
         </div>
 
         <div class="settings">
             <button id="btn-hash" class="btn-primary">Hash!</button>
+            
+            <button id="btn-cancel" class="btn-secondary" style="display: none; background-color: #dc3545; color: white; margin-top: 10px; border: none; font-weight: bold;">
+                Cancel
+            </button>
             
             <div class="setting-group">
                 <label>Input Mode</label>
@@ -41,7 +45,7 @@
 
         <div class="main-content">
             <div class="box">
-                <div class="box-header">Input</div>
+                <div class="box-header">Input Data</div>
                 
                 <textarea id="input-text" placeholder="Enter your text here..."></textarea>
                 

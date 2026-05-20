@@ -36,6 +36,15 @@ ipcMain.handle('hash-data', async (event, inputData, outputEncoding, isFile, alg
     }
 });
 
+// Lắng nghe lệnh Hủy từ giao diện
+ipcMain.on('cancel-hash', () => {
+    try {
+        addon.cancel();
+    } catch (err) {
+        console.error("Lỗi khi gọi lệnh hủy:", err);
+    }
+});
+
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit();
 });
